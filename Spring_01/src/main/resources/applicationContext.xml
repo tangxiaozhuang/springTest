@@ -1,0 +1,186 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:aop="http://www.springframework.org/schema/aop"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:tx="http://www.springframework.org/schema/tx"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans
+                           http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context
+                           http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/aop
+       					   http://www.springframework.org/schema/aop/spring-aop.xsd
+       					   http://www.springframework.org/schema/tx
+       					   http://www.springframework.org/schema/tx/spring-tx.xsd">
+
+
+    <!--默认构造
+    <bean id="userService" class="com.gduf.spring_ioc.UserServiceImpl"></bean>
+    -->
+
+
+    <!--依赖注入
+    <bean id="bookService" class="com.gduf.spring_DI.BookSeviceImpl">
+        <property name="bookDao" ref="bookDao"></property>
+    </bean>
+    <bean id="bookDao" class="com.gduf.spring_DI.BookDaoImpl"></bean>-->
+
+
+    <!--静态工厂与实例工厂的区别：
+    静态工厂： public static UserService creatUserService(){return new UserServiceImpl();}
+     实例工厂：必须先有工厂实例对象，通过实例对象创建对象。提供所有的方法都是“非静态”的。
+                        public class MyBeanFactory {public UserService createService(){
+		return new UserServiceImpl();
+	}
+
+            -->
+    <!--静态工厂
+   <bean id="userService" class="com.gduf.spring_staticFactory.BeanFactory" factory-method="creatUserService"></bean>-->
+
+
+    <!--实例工厂
+    <bean id="beanFactory" class="com.gduf.spring_staticFactory.BeanFactory"></bean>
+    <bean id="userService" factory-bean="beanFactory" factory-method="creatUserService" scope="prototype"></bean>-->
+
+    <!-- <bean id="userService4" class="com.gduf.spring_lifecycle.UserServiceImpl" init-method="init" destroy-method="destroy"></bean>
+     <bean class="com.gduf.spring_beanPostProcess.MyBeanPostProcess"></bean>-->
+
+    <!--利用注解注入-->
+    <!--<context:component-scan base-package="com.gduf.spring_annot"></context:component-scan>-->
+
+    <!--半自动方式生成代理对象proxyBookService
+            **
+            interfaces：注入接口，类似于newProxyInstance方法中的interfaces参数
+            target：目标类
+            interceptorNames：通知方法的名称
+            **
+
+        <bean id="userService" class="com.gduf.spring_aop_hand.BookSeviceImpl"></bean>
+        <bean id="myAspect" class="com.gduf.spring_aop_hand.MyAspect"></bean>
+        <bean id="proxyBookService" class="org.springframework.aop.framework.ProxyFactoryBean">
+            <property name="interfaces" value="com.gduf.spring_aop_hand.BookService"></property>
+            <property name="target" ref="userService"></property>
+            <property name="interceptorNames" value="myAspect"></property>
+        </bean>
+ -->
+
+
+<!--    <bean id="userService" class="com.gduf.spring_aop_hand.BookSeviceImpl"></bean>
+    <bean id="myAspect" class="com.gduf.spring_aop_hand.MyAspect"></bean>
+    <aop:config>
+        <aop:pointcut id="myPoinCut" expression="execution(* com.gduf.spring_aop_hand.BookSeviceImpl.*(..))"></aop:pointcut>
+        <aop:advisor advice-ref="myAspect" pointcut-ref="myPoinCut"></aop:advisor>
+        &lt;!&ndash;<aop:aspect ref="myAspect" id="myAspectId" order=""></aop:aspect>&ndash;&gt;
+    </aop:config>-->
+
+    <!--自动方式生成代理类-->
+    <bean id="bookService" class="com.gduf.spring_aop_auto.BookSeviceImpl"></bean>
+    <bean id="myAspect" class="com.gduf.spring_aop_auto.MyAspect"></bean>
+    <aop:config proxy-target-class="true">
+        <aop:pointcut expression="execution(* com.gduf.spring_aop_auto.*.*(..))" id="myPointCut"/>
+        <aop:advisor advice-ref="myAspect" pointcut-ref="myPointCut"/>
+    </aop:config>
+
+
+   <!-- <bean id="myAspect1" class="com.gduf.spring_aspect_xml.MyAspect"></bean>
+    <bean id="bookservice" class="com.gduf.spring_aspect_xml.BookSeviceImpl"></bean>
+    <aop:config>
+        &lt;!&ndash;<aop:aspect ref="">将myAspect申明为切面类，从而获得通知方法&ndash;&gt;
+        <aop:aspect ref="myAspect1">
+            <aop:pointcut expression="execution(* com.gduf.spring_aspect_xml.BookSeviceImpl.*(..))" id="myPoinCut"></aop:pointcut>
+            <aop:before method="before" pointcut-ref="myPoinCut"></aop:before>
+        </aop:aspect>
+    </aop:config>-->
+
+
+
+
+    <!--利用jdbc模板进行数据存储-->
+<!--
+    <bean id="userBean" class="com.gduf.spring_jdbc.UserBean"></bean>
+
+    <bean id="dataBase" class="org.apache.commons.dbcp.BasicDataSource">
+        <property name="driverClassName" value="com.mysql.jdbc.Driver"></property>
+        <property name="url" value="jdbc:mysql://localhost:3306/spring_table"></property>
+        <property name="username" value="root"></property>
+        <property name="password" value="123"></property>
+    </bean>
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
+        <property name="dataSource" ref="dataBase"></property>
+    </bean>
+    <bean id="userDao" class="com.gduf.spring_jdbc.UserDaoImpl">
+        <property name="jdbcTemplate" ref="jdbcTemplate"></property>
+    </bean>-->
+
+
+
+    <!--spring事务管理-->
+<!--    <bean id="datasource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="com.mysql.jdbc.Driver"></property>
+        <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/spring_table"></property>
+        <property name="user" value="root"></property>
+        <property name="password" value="123"></property>
+    </bean>
+    <bean id="accountDao" class="com.gduf.spring_tx.dao.AccountDaoimpl">
+        <property name="dataSource" ref="datasource"></property>
+    </bean>
+    <bean id="accountService" class="com.gduf.spring_tx.service.AccountServiceImpl">
+        <property name="accountDao" ref="accountDao"></property>
+    </bean>-->
+
+<!--半自动代理--><!--
+    <bean id="datasource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="com.mysql.jdbc.Driver"></property>
+        <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/spring_table"></property>
+        <property name="user" value="root"></property>
+        <property name="password" value="123"></property>
+    </bean>
+    <bean id="accountDao" class="com.gduf.spring_tx.dao.AccountDaoimpl">
+        <property name="dataSource" ref="datasource"></property>
+    </bean>
+    <bean id="accountService" class="com.gduf.spring_tx.service.AccountServiceImpl">
+        <property name="accountDao" ref="accountDao"></property>
+    </bean>
+
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="datasource"></property>
+    </bean>
+    <bean id="accountServiceProxy" class="org.springframework.transaction.interceptor.TransactionProxyFactoryBean">
+        <property name="proxyInterfaces" value="com.gduf.spring_tx.service.AccountService"></property>
+        <property name="target" ref="accountService"></property>
+        <property name="transactionManager" ref="txManager"></property>
+        <property name="transactionAttributes">
+            <props>
+                <prop key="transfer">PROPAGATION_REQUIRED,ISOLATION_DEFAULT</prop>
+            </props>
+        </property>
+    </bean>-->
+
+
+    <bean id="datasource" class="com.mchange.v2.c3p0.ComboPooledDataSource">
+        <property name="driverClass" value="com.mysql.jdbc.Driver"></property>
+        <property name="jdbcUrl" value="jdbc:mysql://localhost:3306/spring_table"></property>
+        <property name="user" value="root"></property>
+        <property name="password" value="123"></property>
+    </bean>
+    <bean id="accountDao" class="com.gduf.spring_tx.dao.AccountDaoimpl">
+        <property name="dataSource" ref="datasource"></property>
+    </bean>
+    <bean id="accountService" class="com.gduf.spring_tx.service.AccountServiceImpl">
+        <property name="accountDao" ref="accountDao"></property>
+    </bean>
+
+    <bean id="txManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
+        <property name="dataSource" ref="datasource"></property>
+    </bean>
+    <tx:advice id="txAdvice" transaction-manager="txManager">
+    <tx:attributes>
+        <tx:method name="transfer" propagation="REQUIRED" isolation="DEFAULT"/>
+    </tx:attributes>
+    </tx:advice>
+    <aop:config>
+        <aop:advisor advice-ref="txAdvice" pointcut="execution(* com.gduf.spring_tx.service.AccountServiceImpl.*(..))"></aop:advisor>
+    </aop:config>
+    
+    
+</beans>
